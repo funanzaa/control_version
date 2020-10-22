@@ -84,13 +84,13 @@ class Ui_form_database(object):
         QtCore.QMetaObject.connectSlotsByName(form_database)
 
         # lambda is used when passing extra arg in the method
-        # self.btn_cancal.clicked.connect(lambda: self.closescr(form_database))
-        self.btn_cancal.clicked.connect(self.closescr)
+        self.btn_cancal.clicked.connect(lambda: self.closescr(form_database))
+        # self.btn_cancal.clicked.connect(self.closescr)
 
     def closescr(self, form_database):
         print("test2")
         # hide the screen on exit btn clicked
-        # form_database.hide()
+        form_database.hide()
 
     def retranslateUi(self, form_database):
         _translate = QtCore.QCoreApplication.translate
