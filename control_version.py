@@ -9,7 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from form_database import Ui_form_database # import form database screen
 
 class Ui_Main(object):
     def setupUi(self, Main):
@@ -94,7 +94,7 @@ class Ui_Main(object):
 
         #code
 
-        self.actionSetting.triggered.connect(self.click)
+        self.actionSetting.triggered.connect(self.databaseForm) # fc call form form database
 
 
     def retranslateUi(self, Main):
@@ -110,8 +110,13 @@ class Ui_Main(object):
         self.actionFlie.setText(_translate("Main", "Quit"))
         self.actionAbout.setText(_translate("Main", "About"))
 
-    def click(self):
+    def databaseForm(self):
+        # Code the form database
         print("test")
+        self.form_database = QtWidgets.QMainWindow()
+        self.ui = Ui_form_database()
+        self.ui.setupUi(self.form_database)
+        self.form_database.show()
 
 if __name__ == "__main__":
     import sys
