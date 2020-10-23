@@ -9,7 +9,11 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from configparser import ConfigParser
 from form_database import Ui_form_database # import form database screen
+import psycopg2
+from os import path
+
 
 class Ui_Main(object):
     def setupUi(self, Main):
@@ -94,7 +98,8 @@ class Ui_Main(object):
 
         #code
 
-        self.actionSetting.triggered.connect(self.databaseForm) # fc call form form database
+        self.actionSetting.triggered.connect(self.databaseForm) # call form form database
+        self.btnHos.clicked.connect(self.checkVersion)
 
 
     def retranslateUi(self, Main):
@@ -110,13 +115,46 @@ class Ui_Main(object):
         self.actionFlie.setText(_translate("Main", "Quit"))
         self.actionAbout.setText(_translate("Main", "About"))
 
+
+    def config_test(self):
+        if path.exists('config.ini') == True:
+            # Read config.ini file
+            config_object = ConfigParser()
+            config_object.read("config.ini")
+            # Get the password
+            serverinfo = config_object["SERVERCONFIG"]
+            dbname = serverinfo["dbname"]
+            user = serverinfo["user"]
+            host = serverinfo["host"]
+            password = serverinfo["passwd"]
+            conn = self.postgres_test(dbname, user, host, password)
+            return conn
+        else:
+            return False
+
+    def postgres_test(self, dbname, user, host, password ):
+        text = "dbname={} user={} host={} password={} connect_timeout=1".format(dbname, user, host, password)
+        try:
+            conn = psycopg2.connect(text)
+            conn.close()
+            return True
+        except:
+            return False
+
+
     def databaseForm(self):
-        # Code the form database
-        print("test")
         self.form_database = QtWidgets.QMainWindow()
         self.ui = Ui_form_database()
         self.ui.setupUi(self.form_database)
         self.form_database.show()
+
+    def checkVersion(self):
+        if self.config_test() == True:
+            pass
+        else:
+            self.databaseForm()
+
+
 
 if __name__ == "__main__":
     import sys

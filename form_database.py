@@ -9,7 +9,9 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from configparser import ConfigParser
+import os.path
+from os import path
 
 class Ui_form_database(object):
     def setupUi(self, form_database):
@@ -83,12 +85,55 @@ class Ui_form_database(object):
         self.retranslateUi(form_database)
         QtCore.QMetaObject.connectSlotsByName(form_database)
 
+        if path.exists('config.ini') == True:
+            config_object = ConfigParser()
+            config_object.read("config.ini")
+            # Get
+            serverinfo = config_object["SERVERCONFIG"]
+            self.txt_server.setText(serverinfo["host"])
+            self.txt_databasename.setText(serverinfo["dbname"])
+            self.txt_user.setText(serverinfo["user"])
+            self.txt_pass.setText(serverinfo["passwd"])
+            self.txt_port.setText(serverinfo["port"])
+
+        else:
+            config_object = ConfigParser()
+            config_object["SERVERCONFIG"] = {
+                "host": "",
+                "dbname": "",
+                "user": "",
+                "passwd": "",
+                "port": ""
+            }
+
+
         # lambda is used when passing extra arg in the method
         self.btn_cancal.clicked.connect(lambda: self.closescr(form_database))
-        # self.btn_cancal.clicked.connect(self.closescr)
+        self.btn_ok.clicked.connect(lambda: self.addConfigDB(form_database))
+        # self.btn_ok.clicked.connect(self.addConfigDB)
+
+    def addConfigDB(self, form_database):
+        # Read config.ini file
+        config_object = ConfigParser()
+        config_object.read("config.ini")
+
+        # Get the serverinfo section
+        config_object["SERVERCONFIG"] = {
+            "host": self.txt_server.text(),
+            "dbname": self.txt_databasename.text(),
+            "user": self.txt_user.text(),
+            "passwd": self.txt_pass.text(),
+            "port": self.txt_port.text()
+        }
+
+        # Write changes back to file
+        with open('config.ini', 'w') as conf:
+            config_object.write(conf)
+
+        form_database.hide()
 
     def closescr(self, form_database):
-        print("test2")
+        # print("test2")
         # hide the screen on exit btn clicked
         form_database.hide()
 
