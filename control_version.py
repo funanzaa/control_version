@@ -15,7 +15,14 @@ import psycopg2
 from os import path
 import requests
 from PyQt5.QtWidgets import QMessageBox
+from tqdm import tqdm
 
+__version__ = '1.0'
+url_download_path = 'http://localhost:8000/media/file/HospiltalOS_NHSO_Update.exe'
+r_hos_version = requests.get('http://localhost:8000/media/file/hospitalos_version.txt')
+r_sql_hos43 = requests.get('http://localhost:8000/media/file/updateV3_9_43.txt')
+sql_hos43 = r_sql_hos43.text
+server_version_hos = r_hos_version.text
 class Ui_Main(object):
     def setupUi(self, Main):
         Main.setObjectName("Main")
@@ -105,7 +112,7 @@ class Ui_Main(object):
 
     def retranslateUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
-        Main.setWindowTitle(_translate("Main", "Autoupdate 1.0"))
+        Main.setWindowTitle(_translate("Main", "Autoupdate" + __version__))
         self.btnHos.setText(_translate("Main", "HospitalOS"))
         self.btnAdmin.setText(_translate("Main", "Admin"))
         self.btnReportCenter.setText(_translate("Main", "Report Center"))
@@ -132,6 +139,13 @@ class Ui_Main(object):
             dbname, user, host, password = self.get_config()  # get function get_config
             conn = self.postgres_test(dbname, user, host, password)
             return conn
+        else:
+            return False
+
+    def file_app_version_test(self):
+        if path.exists('current_versions.txt') == True:
+            f = open("current_versions.txt", "r")
+            return f.read()
         else:
             return False
 
@@ -167,20 +181,26 @@ class Ui_Main(object):
             records = cur.fetchone()
             cur.close()
             conn.close()
-            r_hos_version = requests.get('http://localhost:8000/media/file/hospitalos_version.txt')
-            r_sql_hos43 = requests.get('http://localhost:8000/media/file/updateV3_9_43.txt')
-            server_version_hos = r_hos_version.text
+            # r_hos_version = requests.get('http://localhost:8000/media/file/hospitalos_version.txt')
+            # r_sql_hos43 = requests.get('http://localhost:8000/media/file/updateV3_9_43.txt')
+            # server_version_hos = r_hos_version.text
             local_version_hos = records[0]
-            # print(server_version_hos)
-            # print(local_version_hos)
-            if int(local_version_hos) < int(server_version_hos):
+            # print(self.file_app_version_test())
+            #  case 1) No update DB and No file verions_current
+            if int(local_version_hos) < int(server_version_hos) and self.file_app_version_test() == False:
+                self.show_popup1(r_hos_version.text, records[0])
+            # update DB but No file verions_current
+            elif int(local_version_hos) == int(server_version_hos) and self.file_app_version_test() == False:
+                self.show_popup(r_hos_version.text, records[0])
+            # No update DB but have file verions_current
+            elif int(local_version_hos) < int(server_version_hos) and int(self.file_app_version_test()) == int(server_version_hos):
                 self.show_popup(r_hos_version.text, records[0])
             else:
                 print("run hospital.exe")
         else:
             self.databaseForm()
 
-    def show_popup(self, records , local_version_hos):
+    def show_popup1(self, records, local_version_hos):
         msg = QMessageBox()
         msg.setWindowTitle("Information")
         msg.setText("ตรวจพบ Hospital-OS NHSO มีเวอร์ชั่นใหม่ " + records + " !! ")
@@ -190,14 +210,39 @@ class Ui_Main(object):
         msg.setInformativeText("ต้องการอัพเดท หรือไม่")
         msg.setDetailedText("**ปัจจุบัน Hospital-OS NHSO verion" + local_version_hos)
 
-        msg.buttonClicked.connect(self.popup_button)
+        msg.buttonClicked.connect(self.popup_button1)
 
 
         x = msg.exec_()
 
+    def popup_button1(self, answer):
+        if answer.text() == 'OK':
+            # print(self.config_test())
+            # dbname, user, host, password = self.get_config()
+            # text = "dbname={} user={} host={} password={} connect_timeout=1".format(dbname, user, host, password)
+            # conn = psycopg2.connect(text)
+            # cur = conn.cursor()
+            # cur.execute(sql_hos43)
+            # conn.commit()
+            # cur.close()
+            # conn.close()
+            chunk_size = 1024
+            r = requests.get(url_download_path, stream = True)
+            total_size = int(r.headers['content-length'])
+            with open("HospiltalOS_NHSO_Update.exe", 'wb') as f:
+                for data in tqdm(iterable=r.iter_content(chunk_size=chunk_size), total= total_size/chunk_size,unit="KB"):
+                    f.write(data)
 
-    def popup_button(self, i):
-        print(i.text())
+            print("Download Complete")
+            self.show_popup1("Download Complete", '3943')
+
+            # self.download_file(url)
+            # print(server_version_hos)
+            # print(__local_hos__)
+            print(answer.text())
+
+
+
 
 
 if __name__ == "__main__":
