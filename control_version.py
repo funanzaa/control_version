@@ -13,7 +13,8 @@ from configparser import ConfigParser
 from form_database import Ui_form_database # import form database screen
 import psycopg2
 from os import path
-
+import requests
+from PyQt5.QtWidgets import QMessageBox
 
 class Ui_Main(object):
     def setupUi(self, Main):
@@ -116,17 +117,19 @@ class Ui_Main(object):
         self.actionAbout.setText(_translate("Main", "About"))
 
 
+    def get_config(self):
+        config_object = ConfigParser()
+        config_object.read("config.ini")
+        serverinfo = config_object["SERVERCONFIG"]
+        dbname = serverinfo["dbname"]
+        user = serverinfo["user"]
+        host = serverinfo["host"]
+        password = serverinfo["passwd"]
+        return dbname, user, host, password
+
     def config_test(self):
         if path.exists('config.ini') == True:
-            # Read config.ini file
-            config_object = ConfigParser()
-            config_object.read("config.ini")
-            # Get the password
-            serverinfo = config_object["SERVERCONFIG"]
-            dbname = serverinfo["dbname"]
-            user = serverinfo["user"]
-            host = serverinfo["host"]
-            password = serverinfo["passwd"]
+            dbname, user, host, password = self.get_config()  # get function get_config
             conn = self.postgres_test(dbname, user, host, password)
             return conn
         else:
@@ -149,11 +152,52 @@ class Ui_Main(object):
         self.form_database.show()
 
     def checkVersion(self):
+        # select version hos
+        select_version = "select max(replace(version_db,'.','')) from s_version;"
         if self.config_test() == True:
-            pass
+            dbname, user, host, password = self.get_config() # get function get_config
+            text = "dbname={} user={} host={} password={} connect_timeout=1".format(dbname, user, host, password)
+            # Connect to your postgres DB
+            conn = psycopg2.connect(text)
+            # Open a cursor to perform database operations
+            cur = conn.cursor()
+            # Execute a query
+            cur.execute("select max(replace(version_db,'.','')) from s_version")
+            # Retrieve query results
+            records = cur.fetchone()
+            cur.close()
+            conn.close()
+            r_hos_version = requests.get('http://localhost:8000/media/file/hospitalos_version.txt')
+            r_sql_hos43 = requests.get('http://localhost:8000/media/file/updateV3_9_43.txt')
+            server_version_hos = r_hos_version.text
+            local_version_hos = records[0]
+            # print(server_version_hos)
+            # print(local_version_hos)
+            if int(local_version_hos) < int(server_version_hos):
+                self.show_popup(r_hos_version.text, records[0])
+            else:
+                print("run hospital.exe")
         else:
             self.databaseForm()
 
+    def show_popup(self, records , local_version_hos):
+        msg = QMessageBox()
+        msg.setWindowTitle("Information")
+        msg.setText("ตรวจพบ Hospital-OS NHSO มีเวอร์ชั่นใหม่ " + records + " !! ")
+        msg.setIcon(QMessageBox.Information)
+        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        msg.setDefaultButton(QMessageBox.Ok)
+        msg.setInformativeText("ต้องการอัพเดท หรือไม่")
+        msg.setDetailedText("**ปัจจุบัน Hospital-OS NHSO verion" + local_version_hos)
+
+        msg.buttonClicked.connect(self.popup_button)
+
+
+        x = msg.exec_()
+
+
+    def popup_button(self, i):
+        print(i.text())
 
 
 if __name__ == "__main__":
