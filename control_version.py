@@ -108,8 +108,12 @@ class Ui_Main(object):
 
         #code
 
+
         self.actionSetting.triggered.connect(self.databaseForm) # call form form database
-        self.btnHos.clicked.connect(self.checkVersion)
+        # self.btnHos.clicked.connect(self.checkVersion)
+        self.btnHos.clicked.connect(lambda: self.checkVersion("Hos"))
+        self.btnAdmin.clicked.connect(lambda: self.checkVersion("Admin"))
+        self.btnReportCenter.clicked.connect(lambda: self.checkVersion("Report"))
 
 
     def retranslateUi(self, Main):
@@ -167,7 +171,8 @@ class Ui_Main(object):
         self.ui.setupUi(self.form_database)
         self.form_database.show()
 
-    def checkVersion(self):
+    def checkVersion(self, choice):
+        # print(choice)
         # select version hos
         select_version = "select max(replace(version_db,'.','')) from s_version;"
         if self.config_test() == True:
@@ -198,7 +203,12 @@ class Ui_Main(object):
             elif int(local_version_hos) < int(server_version_hos) and int(self.file_app_version_test()) == int(server_version_hos):
                 self.show_popup1(r_hos_version.text, records[0])
             else:
-                print("run hospital.exe")
+                if choice == "Hos":
+                    print("run hospital.exe")
+                elif choice == "Admin":
+                    print("run admin.exe")
+                elif choice == "Report":
+                    print("run Report.exe")
         else:
             self.databaseForm()
 
@@ -242,41 +252,11 @@ class Ui_Main(object):
             conn.commit()
             cur.close()
             conn.close()
-            chunk_size = 1024
-            r = requests.get(url_download_path, stream = True)
-            total_size = int(r.headers['content-length'])
-            with open("HospiltalOS_NHSO_Update.exe", 'wb') as f:
-                for data in tqdm(iterable=r.iter_content(chunk_size=chunk_size), total= total_size/chunk_size,unit="KB"):
-                    f.write(data)
-
-            print("Download Complete")
-            ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'HospiltalOS_NHSO_Update.exe', None, None, 10)
-            # self.show_popup1("Download Complete", '3943')
-
-            # self.download_file(url)
-            # print(server_version_hos)
-            # print(__local_hos__)
             print(answer.text())
 
     def popup_button2(self, answer):
         if answer.text() == 'OK':
             self.bar_download()
-            # chunk_size = 1024
-
-            # r = requests.get(url_download_path, stream= True)
-            # total_size = int(r.headers['content-length'])
-            # with open("HospiltalOS_NHSO_Update.exe", 'wb') as f:
-            #     for data in tqdm(iterable=r.iter_content(chunk_size=chunk_size), total= total_size/chunk_size,unit="KB"):
-            #         f.write(data)
-
-            # print("Download Complete")
-            # ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'HospiltalOS_NHSO_Update.exe', None, None, 10)
-            # self.show_popup1("Download Complete", '3943')
-
-            # self.download_file(url)
-            # print(server_version_hos)
-            # print(__local_hos__)
-            # print(answer.text())
 
     def bar_download(self):
         self.window = QtWidgets.QMainWindow()

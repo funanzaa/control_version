@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QMessageBox
 import requests
 import urllib.request
 import os
+import ctypes
 
 
 url_download_path = 'http://localhost:8000/media/file/HospiltalOS_NHSO_Update.exe'
@@ -25,7 +26,7 @@ class Ui_formProgressBar(object):
         formProgressBar.setMinimumSize(QtCore.QSize(425, 117))
         formProgressBar.setMaximumSize(QtCore.QSize(425, 117))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("icon/update_reload_sync.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("icon/download-files.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         formProgressBar.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(formProgressBar)
         self.centralwidget.setObjectName("centralwidget")
@@ -34,9 +35,9 @@ class Ui_formProgressBar(object):
         self.progressBar.setLocale(QtCore.QLocale(QtCore.QLocale.English, QtCore.QLocale.UnitedStates))
         self.progressBar.setProperty("value", 0)
         self.progressBar.setObjectName("progressBar")
-        self.btn_cancal = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_cancal.setGeometry(QtCore.QRect(170, 60, 93, 28))
-        self.btn_cancal.setObjectName("btn_cancal")
+        self.btn_download = QtWidgets.QPushButton(self.centralwidget)
+        self.btn_download.setGeometry(QtCore.QRect(170, 60, 93, 28))
+        self.btn_download.setObjectName("btn_download")
         formProgressBar.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(formProgressBar)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 425, 26))
@@ -46,14 +47,26 @@ class Ui_formProgressBar(object):
         self.retranslateUi(formProgressBar)
         QtCore.QMetaObject.connectSlotsByName(formProgressBar)
 
-        self.btn_cancal.clicked.connect(self.Download)
+        self.btn_download.clicked.connect(self.Download)
 
     def Download(self):
         try:
+            self.btn_download.setEnabled(False)
             urllib.request.urlretrieve(url_download_path, "Update_HospitalOS.exe", self.Handel_Progress)
-        except Exception as e:
-            QMessageBox.warning(self, "Download Error", e.reason)
+            self.run_patch()
+        except :
+            QMessageBox.warning(self, "Download Error", "Check Connection Internet")
             return
+
+
+    def closescr(self, formProgressBar):
+        # print("test2")
+        # hide the screen on exit btn clicked
+        formProgressBar.hide()
+
+
+    def run_patch(self):
+        ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'Update_HospitalOS.exe', None, None, 10)
 
     def Handel_Progress(self, blocknum, blocksize, totalsize):
         readed_data = blocknum * blocksize
@@ -67,4 +80,4 @@ class Ui_formProgressBar(object):
     def retranslateUi(self, formProgressBar):
         _translate = QtCore.QCoreApplication.translate
         formProgressBar.setWindowTitle(_translate("formProgressBar", "Download"))
-        self.btn_cancal.setText(_translate("formProgressBar", "Download"))
+        self.btn_download.setText(_translate("formProgressBar", "Download"))
