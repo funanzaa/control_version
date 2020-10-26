@@ -11,15 +11,15 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from configparser import ConfigParser
 from form_database import Ui_form_database # import form database screen
+from progressBar import Ui_formProgressBar
 import psycopg2
 from os import path
 import requests
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QProgressBar, QVBoxLayout
 from tqdm import tqdm
 import ctypes
 
 __version__ = '1.0'
-url_download_path = 'http://localhost:8000/media/file/HospiltalOS_NHSO_Update.exe'
 r_hos_version = requests.get('http://localhost:8000/media/file/hospitalos_version.txt')
 r_sql_hos43 = requests.get('http://localhost:8000/media/file/updateV3_9_43.txt')
 sql_hos43 = r_sql_hos43.text
@@ -92,6 +92,7 @@ class Ui_Main(object):
         self.actionSetting = QtWidgets.QAction(Main)
         self.actionSetting.setObjectName("actionSetting")
         self.actionFlie = QtWidgets.QAction(Main)
+
         self.actionFlie.setObjectName("actionFlie")
         self.actionAbout = QtWidgets.QAction(Main)
         self.actionAbout.setObjectName("actionAbout")
@@ -224,7 +225,7 @@ class Ui_Main(object):
         msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         msg.setDefaultButton(QMessageBox.Ok)
         msg.setInformativeText("ต้องการอัพเดท หรือไม่")
-        msg.setDetailedText("**ปัจจุบัน Hospital-OS NHSO verion" + local_version_hos)
+        msg.setDetailedText("**ปัจจุบัน (Versions Database อัพเดทแล้ว)" + local_version_hos)
 
         msg.buttonClicked.connect(self.popup_button2)
 
@@ -259,24 +260,29 @@ class Ui_Main(object):
 
     def popup_button2(self, answer):
         if answer.text() == 'OK':
-            chunk_size = 1024
-            r = requests.get(url_download_path, stream = True)
-            total_size = int(r.headers['content-length'])
-            with open("HospiltalOS_NHSO_Update.exe", 'wb') as f:
-                for data in tqdm(iterable=r.iter_content(chunk_size=chunk_size), total= total_size/chunk_size,unit="KB"):
-                    f.write(data)
+            self.bar_download()
+            # chunk_size = 1024
 
-            print("Download Complete")
-            ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'HospiltalOS_NHSO_Update.exe', None, None, 10)
+            # r = requests.get(url_download_path, stream= True)
+            # total_size = int(r.headers['content-length'])
+            # with open("HospiltalOS_NHSO_Update.exe", 'wb') as f:
+            #     for data in tqdm(iterable=r.iter_content(chunk_size=chunk_size), total= total_size/chunk_size,unit="KB"):
+            #         f.write(data)
+
+            # print("Download Complete")
+            # ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'HospiltalOS_NHSO_Update.exe', None, None, 10)
             # self.show_popup1("Download Complete", '3943')
 
             # self.download_file(url)
             # print(server_version_hos)
             # print(__local_hos__)
-            print(answer.text())
+            # print(answer.text())
 
-
-
+    def bar_download(self):
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_formProgressBar()
+        self.ui.setupUi(self.window)
+        self.window.show()
 
 
 
