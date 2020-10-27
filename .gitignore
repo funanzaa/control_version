@@ -147,3 +147,5 @@ idea/
 *.exe
 *.ini
 *.ui
+/4
+/ttt

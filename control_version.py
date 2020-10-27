@@ -21,8 +21,8 @@ import ctypes
 
 __version__ = '1.0'
 r_hos_version = requests.get('http://localhost:8000/media/file/hospitalos_version.txt')
-r_sql_hos43 = requests.get('http://localhost:8000/media/file/updateV3_9_43.txt')
-sql_hos43 = r_sql_hos43.text
+r_sql_hos = requests.get('http://localhost:8000/media/file/sql_update.txt')
+sql_hos_update_server = r_sql_hos.text
 server_version_hos = r_hos_version.text
 class Ui_Main(object):
     def setupUi(self, Main):
@@ -193,14 +193,14 @@ class Ui_Main(object):
             # server_version_hos = r_hos_version.text
             local_version_hos = records[0]
             # print(self.file_app_version_test())
-            #  case 1) No update DB and No file verions_current
+            #  No update DB and No file verions_current
             if int(local_version_hos) < int(server_version_hos) and self.file_app_version_test() == False:
                 self.show_popup1(r_hos_version.text, records[0])
             # update DB but No file verions_current
             elif int(local_version_hos) == int(server_version_hos) and self.file_app_version_test() == False:
                 self.show_popup2(r_hos_version.text, records[0])
-            # No update DB but have file verions_current
-            elif int(local_version_hos) < int(server_version_hos) and int(self.file_app_version_test()) == int(server_version_hos):
+            # No update DB < server file < server = update
+            elif int(local_version_hos) < int(server_version_hos) and int(self.file_app_version_test()) < int(server_version_hos):
                 self.show_popup1(r_hos_version.text, records[0])
             else:
                 if choice == "Hos":
@@ -248,11 +248,12 @@ class Ui_Main(object):
             text = "dbname={} user={} host={} password={} connect_timeout=1".format(dbname, user, host, password)
             conn = psycopg2.connect(text)
             cur = conn.cursor()
-            cur.execute(sql_hos43)
+            cur.execute(sql_hos_update_server)
             conn.commit()
             cur.close()
             conn.close()
             print(answer.text())
+            self.bar_download() ## update patch
 
     def popup_button2(self, answer):
         if answer.text() == 'OK':
