@@ -19,16 +19,16 @@ import ctypes
 url_download_path = 'http://localhost:8000/media/file/HospiltalOS_NHSO_Update.exe'
 
 
-class Ui_formProgressBar(object):
-    def setupUi(self, formProgressBar):
-        formProgressBar.setObjectName("formProgressBar")
-        formProgressBar.resize(425, 117)
-        formProgressBar.setMinimumSize(QtCore.QSize(425, 117))
-        formProgressBar.setMaximumSize(QtCore.QSize(425, 117))
+class Ui_formProgressBarDownloadApp(object):
+    def setupUi(self, formProgressBarDownloadApp):
+        formProgressBarDownloadApp.setObjectName("formProgressBarDownloadApp")
+        formProgressBarDownloadApp.resize(425, 117)
+        formProgressBarDownloadApp.setMinimumSize(QtCore.QSize(425, 117))
+        formProgressBarDownloadApp.setMaximumSize(QtCore.QSize(425, 117))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("icon/download-files.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        formProgressBar.setWindowIcon(icon)
-        self.centralwidget = QtWidgets.QWidget(formProgressBar)
+        formProgressBarDownloadApp.setWindowIcon(icon)
+        self.centralwidget = QtWidgets.QWidget(formProgressBarDownloadApp)
         self.centralwidget.setObjectName("centralwidget")
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
         self.progressBar.setGeometry(QtCore.QRect(20, 20, 391, 31))
@@ -38,14 +38,14 @@ class Ui_formProgressBar(object):
         self.btn_download = QtWidgets.QPushButton(self.centralwidget)
         self.btn_download.setGeometry(QtCore.QRect(170, 60, 93, 28))
         self.btn_download.setObjectName("btn_download")
-        formProgressBar.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(formProgressBar)
+        formProgressBarDownloadApp.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(formProgressBarDownloadApp)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 425, 26))
         self.menubar.setObjectName("menubar")
-        formProgressBar.setMenuBar(self.menubar)
+        formProgressBarDownloadApp.setMenuBar(self.menubar)
 
-        self.retranslateUi(formProgressBar)
-        QtCore.QMetaObject.connectSlotsByName(formProgressBar)
+        self.retranslateUi(formProgressBarDownloadApp)
+        QtCore.QMetaObject.connectSlotsByName(formProgressBarDownloadApp)
 
         self.btn_download.clicked.connect(self.Download)
 
@@ -59,10 +59,10 @@ class Ui_formProgressBar(object):
             return
 
 
-    def closescr(self, formProgressBar):
+    def closescr(self, formProgressBarDownloadApp):
         # print("test2")
         # hide the screen on exit btn clicked
-        formProgressBar.hide()
+        formProgressBarDownloadApp.hide()
 
 
     def run_patch(self):
@@ -77,8 +77,8 @@ class Ui_formProgressBar(object):
 
 
 
-    def retranslateUi(self, formProgressBar):
+    def retranslateUi(self, formProgressBarDownloadApp):
         _translate = QtCore.QCoreApplication.translate
-        formProgressBar.setWindowTitle(_translate("formProgressBar", "Download"))
-        self.btn_download.setText(_translate("formProgressBar", "Download"))
+        formProgressBarDownloadApp.setWindowTitle(_translate("formProgressBarDownloadApp", "AutoUpdate"))
+        self.btn_download.setText(_translate("formProgressBarDownloadApp", "Download"))
 

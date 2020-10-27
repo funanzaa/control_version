@@ -12,20 +12,27 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from configparser import ConfigParser
 from form_database import Ui_form_database # import form database screen
 from progressBar import Ui_formProgressBar
+from progressBarDownloadApp import Ui_formProgressBarDownloadApp
 import psycopg2
 from os import path
 import requests
-from PyQt5.QtWidgets import QMessageBox, QProgressBar, QVBoxLayout
+from PyQt5.QtWidgets import *
 from tqdm import tqdm
 import ctypes
 
 __version__ = '1.0'
+serverVersionAutoUpdate = requests.get('http://localhost:8000/media/file/version_AppAutoUpdate.txt')
+ServerAutoUpdate = serverVersionAutoUpdate.text
 r_hos_version = requests.get('http://localhost:8000/media/file/hospitalos_version.txt')
 r_sql_hos = requests.get('http://localhost:8000/media/file/sql_update.txt')
 sql_hos_update_server = r_sql_hos.text
 server_version_hos = r_hos_version.text
+
+
+
 class Ui_Main(object):
     def setupUi(self, Main):
+
         Main.setObjectName("Main")
         Main.resize(506, 252)
         Main.setMinimumSize(QtCore.QSize(506, 252))
@@ -108,9 +115,12 @@ class Ui_Main(object):
 
         #code
 
+        if self.checkAutoUpdate() == True:
+            self.AlertCheckVersionApp()
 
         self.actionSetting.triggered.connect(self.databaseForm) # call form form database
-        # self.btnHos.clicked.connect(self.checkVersion)
+        self.actionFlie.triggered.connect(lambda: self.closescr(Main))
+        self.actionAbout.triggered.connect(self.AlertCheckVersionInApp) # call Update app
         self.btnHos.clicked.connect(lambda: self.checkVersion("Hos"))
         self.btnAdmin.clicked.connect(lambda: self.checkVersion("Admin"))
         self.btnReportCenter.clicked.connect(lambda: self.checkVersion("Report"))
@@ -127,7 +137,17 @@ class Ui_Main(object):
         self.menuAbout.setTitle(_translate("Main", "Help"))
         self.actionSetting.setText(_translate("Main", "Database"))
         self.actionFlie.setText(_translate("Main", "Quit"))
-        self.actionAbout.setText(_translate("Main", "About"))
+        self.actionAbout.setText(_translate("Main", "Update"))
+
+
+    def checkAutoUpdate(self):
+        if float(__version__) == float(ServerAutoUpdate):
+            return False
+        else:
+            return True
+
+    def closescr(self, Main): ## close App
+        Main.close()
 
 
     def get_config(self):
@@ -212,6 +232,34 @@ class Ui_Main(object):
         else:
             self.databaseForm()
 
+    def AlertCheckVersionApp(self):
+
+        msg = QMessageBox()
+        msg.setWindowTitle("ตรวจพบ App มีเวอร์ชั่นใหม่ " + ServerAutoUpdate + " !! ")
+        msg.setText("เลือก Menu Help >> เลือก Update")
+        msg.setIcon(QMessageBox.Information)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.setDefaultButton(QMessageBox.Ok)
+        msg.setDetailedText("**ปัจจุบัน Auto Update " + __version__)
+
+
+        x = msg.exec_()
+
+    def AlertCheckVersionInApp(self):
+        if float(__version__) == float(ServerAutoUpdate):
+            msg = QMessageBox()
+            msg.setWindowTitle("Information")
+            msg.setText("โปรแกรมเป็นเวอร์ชั่นปัจจุบันแล้ว")
+            msg.setIcon(QMessageBox.Information)
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.setDefaultButton(QMessageBox.Ok)
+            msg.setDetailedText("**ปัจจุบัน Auto Update " + __version__)
+            x = msg.exec_()
+        else:
+            self.bar_download_app()
+
+
+
     def show_popup1(self, records, local_version_hos):
         msg = QMessageBox()
         msg.setWindowTitle("Information")
@@ -222,7 +270,7 @@ class Ui_Main(object):
         msg.setInformativeText("ต้องการอัพเดท หรือไม่")
         msg.setDetailedText("**ปัจจุบัน Hospital-OS NHSO verion" + local_version_hos)
 
-        msg.buttonClicked.connect(self.popup_button1)
+        # msg.buttonClicked.connect(self.popup_button1)
 
 
         x = msg.exec_()
@@ -259,9 +307,19 @@ class Ui_Main(object):
         if answer.text() == 'OK':
             self.bar_download()
 
+    # def answer_AppUpdate(self, answer):
+    #     if answer.text() == 'OK':
+    #         self.bar_download()
+
     def bar_download(self):
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_formProgressBar()
+        self.ui.setupUi(self.window)
+        self.window.show()
+
+    def bar_download_app(self):
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_formProgressBarDownloadApp()
         self.ui.setupUi(self.window)
         self.window.show()
 
