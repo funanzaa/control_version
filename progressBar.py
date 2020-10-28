@@ -9,15 +9,20 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMessageBox
 import requests
 import urllib.request
 import os
 import ctypes
+from PyQt5.QtWidgets import *
 
+# __domain__ = 'localhost:8000'
+__domain__ = '61.19.253.23'
 
-url_download_path = 'http://localhost:8000/media/file/HospiltalOS_NHSO_Update.exe'
+url_download_path = requests.get('http://' + __domain__ + '/media/file/Update_HospitalOS.exe')
 
+url_download = 'http://' + __domain__ + '/media/file/Update_HospitalOS.exe'
+
+URLDownloadPathStatus =  url_download_path.status_code
 
 class Ui_formProgressBar(object):
     def setupUi(self, formProgressBar):
@@ -48,15 +53,19 @@ class Ui_formProgressBar(object):
         QtCore.QMetaObject.connectSlotsByName(formProgressBar)
 
         self.btn_download.clicked.connect(self.Download)
+        # self.btn_download.triggered.connect(lambda: self.Download(formProgressBar))
 
     def Download(self):
-        try:
+
+        if URLDownloadPathStatus == 200:
             self.btn_download.setEnabled(False)
-            urllib.request.urlretrieve(url_download_path, "Update_HospitalOS.exe", self.Handel_Progress)
+            urllib.request.urlretrieve(url_download, 'Update_HospitalOS.exe', self.Handel_Progress)
             self.run_patch()
-        except :
-            QMessageBox.warning(self, "Download Error", "Check Connection Internet")
-            return
+        elif URLDownloadPathStatus == 404:
+            self.btn_download.setText("ไม่พบไฟล์")
+        elif URLDownloadPathStatus == 503:
+            self.btn_download.setText("Check internet")
+
 
 
     def closescr(self, formProgressBar):

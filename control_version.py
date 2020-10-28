@@ -20,14 +20,25 @@ from PyQt5.QtWidgets import *
 from tqdm import tqdm
 import ctypes
 
+# __domain__ = 'localhost:8000'
+
+__domain__ = '61.19.253.23'
+
 __version__ = '1.0'
-serverVersionAutoUpdate = requests.get('http://localhost:8000/media/file/version_AppAutoUpdate.txt')
+
+
+# 503 , 200
+# url_download_path = requests.get('http://' + __domain__ + '/media/file/Update_HospitalOS.exe')
+# print(url_download_path.status_code)
+
+
+serverVersionAutoUpdate = requests.get('http://' + __domain__ + '/media/file/version_AppAutoUpdate.txt')
 ServerAutoUpdate = serverVersionAutoUpdate.text
-r_hos_version = requests.get('http://localhost:8000/media/file/hospitalos_version.txt')
-r_sql_hos = requests.get('http://localhost:8000/media/file/sql_update.txt')
+
+r_hos_version = requests.get('http://' + __domain__ + '/media/file/hospitalos_version.txt')
+r_sql_hos = requests.get('http://' + __domain__ + '/media/file/sql_update.txt')
 sql_hos_update_server = r_sql_hos.text
 server_version_hos = r_hos_version.text
-
 
 
 class Ui_Main(object):
@@ -47,7 +58,7 @@ class Ui_Main(object):
         self.btnHos.setGeometry(QtCore.QRect(50, 140, 91, 31))
         font = QtGui.QFont()
         font.setFamily("TH Sarabun New")
-        font.setPointSize(14)
+        font.setPointSize(10)
         self.btnHos.setFont(font)
         self.btnHos.setObjectName("btnHos")
         self.label = QtWidgets.QLabel(self.centralwidget)
@@ -66,14 +77,14 @@ class Ui_Main(object):
         self.btnAdmin.setGeometry(QtCore.QRect(190, 140, 91, 31))
         font = QtGui.QFont()
         font.setFamily("TH Sarabun New")
-        font.setPointSize(14)
+        font.setPointSize(10)
         self.btnAdmin.setFont(font)
         self.btnAdmin.setObjectName("btnAdmin")
         self.btnReportCenter = QtWidgets.QPushButton(self.centralwidget)
         self.btnReportCenter.setGeometry(QtCore.QRect(330, 140, 111, 31))
         font = QtGui.QFont()
         font.setFamily("TH Sarabun New")
-        font.setPointSize(14)
+        font.setPointSize(10)
         self.btnReportCenter.setFont(font)
         self.btnReportCenter.setObjectName("btnReportCenter")
         self.label_3 = QtWidgets.QLabel(self.centralwidget)
@@ -113,7 +124,7 @@ class Ui_Main(object):
         self.retranslateUi(Main)
         QtCore.QMetaObject.connectSlotsByName(Main)
 
-        #code
+        # code
 
         if self.checkAutoUpdate() == True:
             self.AlertCheckVersionApp()
@@ -274,7 +285,7 @@ class Ui_Main(object):
         msg.setInformativeText("ต้องการอัพเดท หรือไม่")
         msg.setDetailedText("**ปัจจุบัน Hospital-OS NHSO verion" + local_version_hos)
 
-        # msg.buttonClicked.connect(self.popup_button1)
+        msg.buttonClicked.connect(self.popup_button1)
 
 
         x = msg.exec_()
