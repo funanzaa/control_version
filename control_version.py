@@ -120,7 +120,7 @@ class Ui_Main(object):
 
         self.actionSetting.triggered.connect(self.databaseForm) # call form form database
         self.actionFlie.triggered.connect(lambda: self.closescr(Main))
-        self.actionAbout.triggered.connect(self.AlertCheckVersionInApp) # call Update app
+        self.actionAbout.triggered.connect(lambda: self.AlertCheckVersionInApp(Main))  # call Update app
         self.btnHos.clicked.connect(lambda: self.checkVersion("Hos"))
         self.btnAdmin.clicked.connect(lambda: self.checkVersion("Admin"))
         self.btnReportCenter.clicked.connect(lambda: self.checkVersion("Report"))
@@ -248,7 +248,7 @@ class Ui_Main(object):
 
         x = msg.exec_()
 
-    def AlertCheckVersionInApp(self):
+    def AlertCheckVersionInApp(self, Main):
         if float(__version__) == float(ServerAutoUpdate):
             msg = QMessageBox()
             msg.setWindowTitle("Information")
@@ -259,6 +259,7 @@ class Ui_Main(object):
             msg.setDetailedText("**ปัจจุบัน Auto Update " + __version__)
             x = msg.exec_()
         else:
+            Main.close()
             self.bar_download_app()
 
 

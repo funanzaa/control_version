@@ -47,19 +47,18 @@ class Ui_formProgressBarApp(object):
         self.retranslateUi(formProgressBarApp)
         QtCore.QMetaObject.connectSlotsByName(formProgressBarApp)
 
-        self.btn_cancal.clicked.connect(lambda: self.Download(formProgressBarApp))
+        self.btn_cancal.clicked.connect(self.Download)
 
     def retranslateUi(self, formProgressBarApp):
         _translate = QtCore.QCoreApplication.translate
         formProgressBarApp.setWindowTitle(_translate("formProgressBarApp", "AutoUpdate"))
         self.btn_cancal.setText(_translate("formProgressBarApp", "Download"))
 
-    def Download(self,formProgressBarApp):
+
+    def Download(self):
         try:
             self.btn_cancal.setEnabled(False)
             urllib.request.urlretrieve(url_download_path, "Setup_Autoupdate.exe", self.Handel_Progress)
-            formProgressBarApp.close()
-
             # self.run_patch()
         except :
             QMessageBox.warning(self, "Download Error", "Check Connection Internet")
@@ -73,6 +72,11 @@ class Ui_formProgressBarApp(object):
 
     def run_patch(self):
         ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'Setup_Autoupdate.exe', None, None, 10)
-
-
-
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     formProgressBarApp = QtWidgets.QMainWindow()
+#     ui = Ui_formProgressBarApp()
+#     ui.setupUi(formProgressBarApp)
+#     formProgressBarApp.show()
+#     sys.exit(app.exec_())
