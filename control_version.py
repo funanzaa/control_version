@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from configparser import ConfigParser
 from form_database import Ui_form_database # import form database screen
 from progressBar import Ui_formProgressBar
-from progressBarDownloadApp import Ui_formProgressBarDownloadApp
+from BarLoadApp import Ui_formProgressBarApp
 import psycopg2
 from os import path
 import requests
@@ -224,11 +224,14 @@ class Ui_Main(object):
                 self.show_popup1(r_hos_version.text, records[0])
             else:
                 if choice == "Hos":
-                    print("run hospital.exe")
+                    # print("run hospital.exe")
+                    ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'HospitalOS.exe', None, None, 10)
                 elif choice == "Admin":
-                    print("run admin.exe")
+                    # print("run admin.exe")
+                    ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'setup_mod.bat', None, None, 10)
                 elif choice == "Report":
-                    print("run Report.exe")
+                    # print("run Report.exe")
+                    ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'Report.exe', None, None, 10)
         else:
             self.databaseForm()
 
@@ -319,7 +322,7 @@ class Ui_Main(object):
 
     def bar_download_app(self):
         self.window = QtWidgets.QMainWindow()
-        self.ui = Ui_formProgressBarDownloadApp()
+        self.ui = Ui_formProgressBarApp()
         self.ui.setupUi(self.window)
         self.window.show()
 
