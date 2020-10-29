@@ -202,7 +202,7 @@ class Ui_Main(object):
         self.form_database.show()
 
     def checkVersion(self, choice):
-        # print(choice)
+        # print(Main)
         # select version hos
         select_version = "select max(replace(version_db,'.','')) from s_version;"
         if self.config_test() == True:
@@ -218,9 +218,7 @@ class Ui_Main(object):
             records = cur.fetchone()
             cur.close()
             conn.close()
-            # r_hos_version = requests.get('http://localhost:8000/media/file/hospitalos_version.txt')
-            # r_sql_hos43 = requests.get('http://localhost:8000/media/file/updateV3_9_43.txt')
-            # server_version_hos = r_hos_version.text
+
             local_version_hos = records[0]
             # print(self.file_app_version_test())
             #  No update DB and No file verions_current
@@ -236,18 +234,36 @@ class Ui_Main(object):
                 if choice == "Hos":
                     if path.exists('HospitalOS.exe') == True:
                         ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'HospitalOS.exe', None, None, 10)
+                        self.btnHos.setEnabled(False)
+                        self.btnAdmin.setEnabled(True)
+                        self.btnReportCenter.setEnabled(True)
                     else:
                         ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'run_mod.bat', None, None, 10)
+                        self.btnHos.setEnabled(False)
+                        self.btnAdmin.setEnabled(True)
+                        self.btnReportCenter.setEnabled(True)
                 elif choice == "Admin":
                     if path.exists('HospitalOSSetup.exe') == True:
                         ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'HospitalOSSetup.exe', None, None, 10)
+                        self.btnHos.setEnabled(True)
+                        self.btnAdmin.setEnabled(False)
+                        self.btnReportCenter.setEnabled(True)
                     else:
                         ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'setup_mod.bat', None, None, 10)
+                        self.btnHos.setEnabled(True)
+                        self.btnAdmin.setEnabled(False)
+                        self.btnReportCenter.setEnabled(True)
                 elif choice == "Report":
                     if path.exists('Report.exe') == True:
                         ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'Report.exe', None, None, 10)
+                        self.btnHos.setEnabled(True)
+                        self.btnAdmin.setEnabled(True)
+                        self.btnReportCenter.setEnabled(False)
                     else:
                         ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'report_mod.bat', None, None, 10)
+                        self.btnHos.setEnabled(True)
+                        self.btnAdmin.setEnabled(True)
+                        self.btnReportCenter.setEnabled(False)
         else:
             self.databaseForm()
 
@@ -310,26 +326,45 @@ class Ui_Main(object):
 
         x = msg.exec_()
 
+
+    def show_error_postgres(self, a ):
+        msg = QMessageBox()
+        msg.setWindowTitle("Information")
+        msg.setText("Error SQL Database HospitalOS : ")
+        msg.setIcon(QMessageBox.Warning)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.setDetailedText(a)
+
+
+
+        x = msg.exec_()
+
+    def show_error_database(self):
+        msg = QMessageBox()
+        msg.warning("ttttt")
+
     def popup_button1(self, answer):
         if answer.text() == 'OK':
-            dbname, user, host, password = self.get_config()
-            text = "dbname={} user={} host={} password={} connect_timeout=1".format(dbname, user, host, password)
-            conn = psycopg2.connect(text)
-            cur = conn.cursor()
-            cur.execute(sql_hos_update_server)
-            conn.commit()
-            cur.close()
-            conn.close()
-            print(answer.text())
-            self.bar_download() ## update patch
+            try:
+                dbname, user, host, password = self.get_config()
+                text = "dbname={} user={} host={} password={} connect_timeout=1".format(dbname, user, host, password)
+                conn = psycopg2.connect(text)
+                cur = conn.cursor()
+                cur.execute(sql_hos_update_server)
+                conn.commit()
+            except:
+                # self.show_error_database
+                self.show_error_postgres("Postgresql unable to connect to the database.")
+            else:
+                cur.close()
+                conn.close()
+                print(answer.text())
+                self.bar_download() ## update patch
 
     def popup_button2(self, answer):
         if answer.text() == 'OK':
             self.bar_download()
 
-    # def answer_AppUpdate(self, answer):
-    #     if answer.text() == 'OK':
-    #         self.bar_download()
 
     def bar_download(self):
         self.window = QtWidgets.QMainWindow()
