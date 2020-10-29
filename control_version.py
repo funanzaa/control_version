@@ -17,14 +17,13 @@ import psycopg2
 from os import path
 import requests
 from PyQt5.QtWidgets import *
-from tqdm import tqdm
 import ctypes
 
-# __domain__ = 'localhost:8000'
+__domain__ = '10.151.101.38:8080'
 
-__domain__ = '61.19.253.23'
+# __domain__ = '61.19.253.23'
 
-__version__ = '1.0'
+__version__ = '1.1'
 
 
 # 503 , 200
@@ -235,14 +234,20 @@ class Ui_Main(object):
                 self.show_popup1(r_hos_version.text, records[0])
             else:
                 if choice == "Hos":
-                    # print("run hospital.exe")
-                    ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'HospitalOS.exe', None, None, 10)
+                    if path.exists('HospitalOS.exe') == True:
+                        ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'HospitalOS.exe', None, None, 10)
+                    else:
+                        ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'run_mod.bat', None, None, 10)
                 elif choice == "Admin":
-                    # print("run admin.exe")
-                    ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'setup_mod.bat', None, None, 10)
+                    if path.exists('HospitalOSSetup.exe') == True:
+                        ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'HospitalOSSetup.exe', None, None, 10)
+                    else:
+                        ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'setup_mod.bat', None, None, 10)
                 elif choice == "Report":
-                    # print("run Report.exe")
-                    ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'Report.exe', None, None, 10)
+                    if path.exists('Report.exe') == True:
+                        ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'Report.exe', None, None, 10)
+                    else:
+                        ctypes.windll.Shell32.ShellExecuteW(0, 'open', 'report_mod.bat', None, None, 10)
         else:
             self.databaseForm()
 
@@ -336,6 +341,7 @@ class Ui_Main(object):
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_formProgressBarApp()
         self.ui.setupUi(self.window)
+
         self.window.show()
 
 

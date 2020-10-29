@@ -11,12 +11,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import requests
 import urllib.request
-import os
+from os import path
 import ctypes
 from PyQt5.QtWidgets import *
 
-# __domain__ = 'localhost:8000'
-__domain__ = '61.19.253.23'
+__domain__ = '10.151.101.38:8080'
+# __domain__ = '61.19.253.23'
 
 url_download_path = requests.get('http://' + __domain__ + '/media/file/Update_HospitalOS.exe')
 
@@ -52,19 +52,32 @@ class Ui_formProgressBar(object):
         self.retranslateUi(formProgressBar)
         QtCore.QMetaObject.connectSlotsByName(formProgressBar)
 
-        self.btn_download.clicked.connect(self.Download)
+        # self.btn_download.clicked.connect(self.Download)
+        self.btn_download.clicked.connect(lambda: self.Download(formProgressBar))
         # self.btn_download.triggered.connect(lambda: self.Download(formProgressBar))
 
-    def Download(self):
+    def file_app_version_check(self):
+        if path.exists('Update_HospitalOS.exe') == True:
+            f = open("Update_HospitalOS.exe", "r")
+            return True
+        else:
+            return False
 
-        if URLDownloadPathStatus == 200:
-            self.btn_download.setEnabled(False)
-            urllib.request.urlretrieve(url_download, 'Update_HospitalOS.exe', self.Handel_Progress)
+    def Download(self, formProgressBar):
+
+        if self.file_app_version_check() == True:
             self.run_patch()
-        elif URLDownloadPathStatus == 404:
-            self.btn_download.setText("ไม่พบไฟล์")
-        elif URLDownloadPathStatus == 503:
-            self.btn_download.setText("Check internet")
+            formProgressBar.hide()
+        else:
+            if URLDownloadPathStatus == 200:
+                self.btn_download.setEnabled(False)
+                urllib.request.urlretrieve(url_download, 'Update_HospitalOS.exe', self.Handel_Progress)
+                self.run_patch()
+                formProgressBar.hide()
+            elif URLDownloadPathStatus == 404:
+                self.btn_download.setText("ไม่พบไฟล์")
+            elif URLDownloadPathStatus == 503:
+                self.btn_download.setText("Check internet")
 
 
 
