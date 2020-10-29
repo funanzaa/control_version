@@ -105,9 +105,12 @@ class Ui_Main(object):
         Main.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(Main)
         self.statusbar.setObjectName("statusbar")
+        self.actionVersion_Postgres = QtWidgets.QAction(Main)
+        self.actionVersion_Postgres.setObjectName("actionVersion_Postgres")
         Main.setStatusBar(self.statusbar)
         self.actionSetting = QtWidgets.QAction(Main)
         self.actionSetting.setObjectName("actionSetting")
+        self.menuAbout.addAction(self.actionVersion_Postgres)
         self.actionFlie = QtWidgets.QAction(Main)
 
         self.actionFlie.setObjectName("actionFlie")
@@ -131,9 +134,12 @@ class Ui_Main(object):
         self.actionSetting.triggered.connect(self.databaseForm) # call form form database
         self.actionFlie.triggered.connect(lambda: self.closescr(Main))
         self.actionAbout.triggered.connect(lambda: self.AlertCheckVersionInApp(Main))  # call Update app
+        self.actionVersion_Postgres.triggered.connect(self.checkVersionPsql)
         self.btnHos.clicked.connect(lambda: self.checkVersion("Hos"))
         self.btnAdmin.clicked.connect(lambda: self.checkVersion("Admin"))
         self.btnReportCenter.clicked.connect(lambda: self.checkVersion("Report"))
+
+
 
 
     def retranslateUi(self, Main):
@@ -148,6 +154,35 @@ class Ui_Main(object):
         self.actionSetting.setText(_translate("Main", "Database"))
         self.actionFlie.setText(_translate("Main", "Quit"))
         self.actionAbout.setText(_translate("Main", "Update"))
+        self.actionVersion_Postgres.setText(_translate("Main", "Version Postgres"))
+
+
+    def checkVersionPsql(self):
+
+        if self.config_test() == True:
+            dbname, user, host, password = self.get_config()  # get function get_config
+            text = "dbname={} user={} host={} password={} connect_timeout=1".format(dbname, user, host, password)
+
+            # Connect to your postgres DB
+            conn = psycopg2.connect(text)
+            # Open a cursor to perform database operations
+            cur = conn.cursor()
+            # Execute a query
+            cur.execute("SHOW server_version;")
+            # Retrieve query results
+            records = cur.fetchone()
+            cur.close()
+            conn.close()
+            # self.show_error_postgres(records[0])
+            msg = QMessageBox()
+            msg.setWindowTitle("Information")
+            msg.setText(" Version Postgres " + records[0])
+            msg.setIcon(QMessageBox.Warning)
+            msg.setStandardButtons(QMessageBox.Ok)
+
+            x = msg.exec_()
+        else:
+            self.databaseForm()
 
 
     def checkAutoUpdate(self):
@@ -339,9 +374,6 @@ class Ui_Main(object):
 
         x = msg.exec_()
 
-    def show_error_database(self):
-        msg = QMessageBox()
-        msg.warning("ttttt")
 
     def popup_button1(self, answer):
         if answer.text() == 'OK':
