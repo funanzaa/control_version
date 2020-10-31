@@ -77,7 +77,7 @@ sql_hos_update_server = TestURL_SQLHOS()
 
 # delete file StockModule.jar
 if path.exists('./config/ext_module/stock.xml') == True:
-    if path.exists('./config/ext_module/StockModule.jar') == True:
+    if path.exists('./lib/module/StockModule.jar') == True:
         os.remove('./lib/module/StockModule.jar')
 
 
