@@ -14,15 +14,32 @@ import urllib.request
 from os import path
 import ctypes
 from PyQt5.QtWidgets import *
+from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
 
-__domain__ = '10.151.101.38:8080'
+__domain__ = 'localhost:8000'
 # __domain__ = '61.19.253.23'
 
-url_download_path = requests.get('http://' + __domain__ + '/media/file/Update_HospitalOS.exe')
+# url_download_path = requests.get('http://' + __domain__ + '/media/file/Update_HospitalOS.exe')
 
-url_download = 'http://' + __domain__ + '/media/file/Update_HospitalOS.exe'
+# url_download = 'http://' + __domain__ + '/media/file/Update_HospitalOS.exe'
+URLUpdateHos = 'http://' + __domain__ + '/media/file/Update_HospitalOS.exe'
 
-URLDownloadPathStatus =  url_download_path.status_code
+def TestURL():
+    try:
+        response = urlopen(URLUpdateHos)
+    except HTTPError as e:
+        # print('The server couldn\'t fulfill the request. Error code: ', e.code)
+        return 'offline'
+    except URLError as e:
+        # print(e.reason)
+        return 'offline'
+    else:
+        # print ('Website is  serverVersionSqlHos working fine')
+        url_download_path = requests.get('http://' + __domain__ + '/media/file/Update_HospitalOS.exe')
+        return url_download_path.status_code
+
+URLDownloadPathStatus =  TestURL()
 
 class Ui_formProgressBar(object):
     def setupUi(self, formProgressBar):
@@ -71,7 +88,7 @@ class Ui_formProgressBar(object):
         else:
             if URLDownloadPathStatus == 200:
                 self.btn_download.setEnabled(False)
-                urllib.request.urlretrieve(url_download, 'Update_HospitalOS.exe', self.Handel_Progress)
+                urllib.request.urlretrieve(URLUpdateHos, 'Update_HospitalOS.exe', self.Handel_Progress)
                 self.run_patch()
                 formProgressBar.hide()
             elif URLDownloadPathStatus == 404:

@@ -15,7 +15,7 @@ import urllib.request
 import os
 import ctypes
 
-__domain__ = '10.151.101.38:8080'
+__domain__ = 'localhost:8000'
 # __domain__ = '61.19.253.23'
 
 url_download_path = 'http://' + __domain__ + '/media/file/Setup_Autoupdate.exe'
