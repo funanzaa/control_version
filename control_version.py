@@ -76,8 +76,11 @@ def TestURL_SQLHOS():
 sql_hos_update_server = TestURL_SQLHOS()
 
 # delete file StockModule.jar
-if path.exists('./lib/module/StockModule.jar') == True:
-    os.remove('./lib/module/StockModule.jar')
+if path.exists('./config/ext_module/stock.xml') == True:
+    if path.exists('./config/ext_module/StockModule.jar') == True:
+        os.remove('./lib/module/StockModule.jar')
+
+
 
 class Ui_Main(object):
     def setupUi(self, Main):
@@ -336,6 +339,7 @@ class Ui_Main(object):
                         self.btnAdmin.setEnabled(True)
                         self.btnReportCenter.setEnabled(False)
             else:
+
                 if int(local_version_hos) < int(server_version_hos) and self.file_app_version_test() == False:
                     self.show_popup1(server_version_hos, records[0])
                 # update DB but No file verions_current
@@ -399,6 +403,7 @@ class Ui_Main(object):
             # print('offline')
             self.show_error_offline()
         else:
+
             if float(__version__) == float(ServerAutoUpdate):
                 msg = QMessageBox()
                 msg.setWindowTitle("Information")

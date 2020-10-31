@@ -20,10 +20,9 @@ from urllib.error import URLError, HTTPError
 __domain__ = 'localhost:8000'
 # __domain__ = '61.19.253.23'
 
-# url_download_path = requests.get('http://' + __domain__ + '/media/file/Update_HospitalOS.exe')
 
-# url_download = 'http://' + __domain__ + '/media/file/Update_HospitalOS.exe'
 URLUpdateHos = 'http://' + __domain__ + '/media/file/Update_HospitalOS.exe'
+
 
 def TestURL():
     try:
@@ -40,6 +39,7 @@ def TestURL():
         return url_download_path.status_code
 
 URLDownloadPathStatus =  TestURL()
+
 
 class Ui_formProgressBar(object):
     def setupUi(self, formProgressBar):
