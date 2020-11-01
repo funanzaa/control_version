@@ -11,19 +11,102 @@ from PyQt5.QtWidgets import *
 import ctypes
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
+import datetime
+import pytz
 
-__domain__ = 'localhost:8000'
+__domain__ = 'http://localhost:8000'
 
 # __domain__ = '61.19.253.23'
 
 __version__ = '1.11'
 
-serverVersionAutoUpdate = 'http://' + __domain__ + '/media/file/version_AppAutoUpdate.txt'
-serverVersionHosVersion = 'http://' + __domain__ + '/media/file/hospitalos_version.txt'
-serverVersionSqlHos = 'http://' + __domain__ + '/media/file/sql_update.txt'
+serverVersionAutoUpdate = __domain__ + '/media/file/version_AppAutoUpdate.txt'
+serverVersionHosVersion = __domain__ + '/media/file/hospitalos_version.txt'
+serverVersionSqlHos = __domain__ + '/media/file/sql_update.txt'
 
 req = Request(serverVersionAutoUpdate)
 req_HosVersion = Request(serverVersionHosVersion)
+
+
+# api send version
+
+def get_config():
+    config_object = ConfigParser()
+    config_object.read("config.ini")
+    serverinfo = config_object["SERVERCONFIG"]
+    dbname = serverinfo["dbname"]
+    user = serverinfo["user"]
+    host = serverinfo["host"]
+    password = serverinfo["passwd"]
+    return dbname, user, host, password
+
+
+def get_Token():
+    url = f'{__domain__}/crm/api/auth/'
+
+    response = requests.post(url, data={'username': 'autoupdate', 'password': 'passwordtest'})
+    return response.json()
+
+
+def get_data(hcode):
+    url = f"{__domain__}/crm/api/ControlVersionDetail/{hcode}"
+    header = {'Authorization': f'Token {get_Token()}'}
+    respones = requests.get(url, headers=header)
+    return respones.json()
+
+# print(get_data(12345))
+
+def test_sql(sql):
+    try:
+        dbname, user, host, password = get_config()
+        text = "dbname={} user={} host={} password={} connect_timeout=1".format(dbname, user, host, password)
+        conn = psycopg2.connect(text)
+        cur = conn.cursor()
+        cur.execute(sql)
+        records = cur.fetchone()
+        return records[0]
+        # conn.commit()
+    except:
+        return 'sql fail'
+    else:
+        cur.close()
+        conn.close()
+
+
+def send_api():
+    hcode =  test_sql('select b_visit_office_id from b_site;')
+    hos_version = test_sql("select max(replace(version_db,'.','')) from s_version;")
+    hos_version_stock = test_sql("select max(replace(version_app,'.',''))|| ',' ||max(replace(version_db,'.','')) from s_stock_version;")
+    hos_version_erefer = test_sql("select max(replace(version_app,'.',''))|| ',' ||max(replace(version_db,'.',''))from s_ereferral_version;")
+    tz = pytz.timezone('Asia/Bangkok')
+    now = (datetime.datetime.now(tz=tz))
+    if get_data(hcode) == 'Not Found': ## ถ้า server ไม่มี hcode
+        url = f"{__domain__}/crm/api/ControlVersionList/"
+        header = {'Authorization': f'Token {get_Token()}'}
+        data = {
+            "app_controlVersion": __version__,
+            "hos_s_version": hos_version,
+            "hos_stock_version": hos_version_stock,
+            "hos_ereferral_version": hos_version_erefer,
+            "hcode": hcode,
+            "date_created": now
+        }
+        requests.post(url, data=data, headers=header)
+    else:
+        url = f"{__domain__}/crm/api/ControlVersionDetail/{hcode}/"
+        header = {'Authorization': f'Token {get_Token()}'}
+        data = {
+            "app_controlVersion": __version__,
+            "hos_s_version": hos_version,
+            "hos_stock_version": hos_version_stock,
+            "hos_ereferral_version": hos_version_erefer,
+            "hcode": hcode,
+            "date_created": now
+        }
+        requests.put(url, data=data, headers=header)
+
+send_api() ## send api version
+
 
 def TestURL():
     try:
@@ -36,7 +119,7 @@ def TestURL():
         return 'offline'
     else:
         # print('Website is working fine')
-        serverVersionAutoUpdate = requests.get('http://' + __domain__ + '/media/file/version_AppAutoUpdate.txt')
+        serverVersionAutoUpdate = requests.get(__domain__ + '/media/file/version_AppAutoUpdate.txt')
         ServerAutoUpdate = serverVersionAutoUpdate.text
         return float(ServerAutoUpdate)
 
@@ -53,7 +136,7 @@ def TestURL_HosVer():
         return 'offline'
     else:
         # print ('Website is  URL_SQL working fine')
-        r_hos_version = requests.get('http://' + __domain__ + '/media/file/hospitalos_version.txt')
+        r_hos_version = requests.get(__domain__ + '/media/file/hospitalos_version.txt')
         server_version_hos = r_hos_version.text
         return server_version_hos
 
@@ -69,7 +152,7 @@ def TestURL_SQLHOS():
         return 'offline'
     else:
         # print ('Website is  serverVersionSqlHos working fine')
-        r_sql_hos = requests.get('http://' + __domain__ + '/media/file/sql_update.txt')
+        r_sql_hos = requests.get(__domain__ + '/media/file/sql_update.txt')
         sql_hos_update_server = r_sql_hos.text
         return sql_hos_update_server
 
@@ -197,6 +280,8 @@ class Ui_Main(object):
         self.actionFlie.setText(_translate("Main", "Quit"))
         self.actionAbout.setText(_translate("Main", "Update"))
         self.actionVersion_Postgres.setText(_translate("Main", "Version Postgres"))
+
+
 
 
     def checkVersionPsql(self):
