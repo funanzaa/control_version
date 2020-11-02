@@ -14,9 +14,9 @@ from urllib.error import URLError, HTTPError
 import datetime
 import pytz
 
-__domain__ = 'http://localhost:8000'
+# __domain__ = 'http://localhost:8000'
 
-# __domain__ = '61.19.253.23'
+__domain__ = 'http://61.19.253.23'
 
 __version__ = '1.11'
 
@@ -40,18 +40,16 @@ def get_config():
     password = serverinfo["passwd"]
     return dbname, user, host, password
 
-
-def get_Token():
-    url = f'{__domain__}/crm/api/auth/'
-
-    response = requests.post(url, data={'username': 'autoupdate', 'password': 'passwordtest'})
-    return response.json()
-
+# def get_Token():
+#     url = f'{__domain__}/crm/api/auth/'
+#
+#     response = requests.post(url, data={'username': 'eakachai', 'password': 'passwordtest'})
+#     return response.json()
 
 def get_data(hcode):
     url = f"{__domain__}/crm/api/ControlVersionDetail/{hcode}"
-    header = {'Authorization': f'Token {get_Token()}'}
-    respones = requests.get(url, headers=header)
+    # header = {'Authorization': f'Token {get_Token()}'}
+    respones = requests.get(url)
     return respones.json()
 
 # print(get_data(12345))
@@ -82,7 +80,7 @@ def send_api():
     now = (datetime.datetime.now(tz=tz))
     if get_data(hcode) == 'Not Found': ## ถ้า server ไม่มี hcode
         url = f"{__domain__}/crm/api/ControlVersionList/"
-        header = {'Authorization': f'Token {get_Token()}'}
+        # header = {'Authorization': f'Token {get_Token()}'}
         data = {
             "app_controlVersion": __version__,
             "hos_s_version": hos_version,
@@ -91,10 +89,10 @@ def send_api():
             "hcode": hcode,
             "date_created": now
         }
-        requests.post(url, data=data, headers=header)
+        requests.post(url, data=data)
     else:
         url = f"{__domain__}/crm/api/ControlVersionDetail/{hcode}/"
-        header = {'Authorization': f'Token {get_Token()}'}
+        # header = {'Authorization': f'Token {get_Token()}'}
         data = {
             "app_controlVersion": __version__,
             "hos_s_version": hos_version,
@@ -103,7 +101,7 @@ def send_api():
             "hcode": hcode,
             "date_created": now
         }
-        requests.put(url, data=data, headers=header)
+        requests.put(url, data=data)
 
 send_api() ## send api version
 

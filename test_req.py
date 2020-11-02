@@ -1,11 +1,13 @@
 import requests
 
-URL = 'http://localhost:8000'
+# URL = 'http://localhost:8000'
+URL = 'http://61.19.253.23'
 
 def get_Token():
     url = f'{URL}/crm/api/auth/'
 
     response = requests.post(url, data={'username': 'autoupdate', 'password': 'passwordtest'})
+    # print(response.status_code)
     return response.json()
 
 # print(get_Token())
@@ -16,9 +18,11 @@ def get_data():
     respones = requests.get(url, headers=header)
     return respones.json()
 
+# print(get_data())
+
 def create_new(hcode):
     url = f"{URL}/crm/api/ControlVersionList/"
-    header = {'Authorization': f'Token {get_Token()}'}
+    # header = {'Authorization': f'Token {get_Token()}'}
     data = {
             "app_controlVersion": "4000",
             "hos_s_version": "4000",
@@ -26,11 +30,11 @@ def create_new(hcode):
             "hos_ereferral_version": "4000",
             "hcode": f"{hcode}"
         }
-    respones = requests.post(url, data=data, headers=header)
-    # return respones.json()
+    respones = requests.post(url, data=data)
+    return respones.json()
     # print(respones.text)
 
-
+print(create_new(22696))
 
 def edit_data(hcode):
     url = f"{URL}/crm/api/ControlVersionDetail/{hcode}/"
@@ -54,4 +58,4 @@ def delete_data(hcode):
     # return respones.json()
     print(respones.status_code)
 
-delete_data(12345)
+# delete_data(12345)

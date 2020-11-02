@@ -17,8 +17,8 @@ from PyQt5.QtWidgets import *
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 
-__domain__ = 'localhost:8000'
-# __domain__ = '61.19.253.23'
+# __domain__ = 'localhost:8000'
+__domain__ = '61.19.253.23'
 
 
 URLUpdateHos = 'http://' + __domain__ + '/media/file/Update_HospitalOS.exe'
