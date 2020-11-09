@@ -73,28 +73,28 @@ class Ui_formProgressBar(object):
         self.btn_download.clicked.connect(lambda: self.Download(formProgressBar))
         # self.btn_download.triggered.connect(lambda: self.Download(formProgressBar))
 
-    def file_app_version_check(self):
-        if path.exists('Update_HospitalOS.exe') == True:
-            f = open("Update_HospitalOS.exe", "r")
-            return True
-        else:
-            return False
+    # def file_app_version_check(self):
+    #     if path.exists('Update_HospitalOS.exe') == True:
+    #         f = open("Update_HospitalOS.exe", "r")
+    #         return True
+    #     else:
+    #         return False
 
     def Download(self, formProgressBar):
 
-        if self.file_app_version_check() == True:
+        # if self.file_app_version_check() == True:
+        #     self.run_patch()
+        #     formProgressBar.hide()
+        # else:
+        if URLDownloadPathStatus == 200:
+            self.btn_download.setEnabled(False)
+            urllib.request.urlretrieve(URLUpdateHos, 'Update_HospitalOS.exe', self.Handel_Progress)
             self.run_patch()
             formProgressBar.hide()
-        else:
-            if URLDownloadPathStatus == 200:
-                self.btn_download.setEnabled(False)
-                urllib.request.urlretrieve(URLUpdateHos, 'Update_HospitalOS.exe', self.Handel_Progress)
-                self.run_patch()
-                formProgressBar.hide()
-            elif URLDownloadPathStatus == 404:
-                self.btn_download.setText("ไม่พบไฟล์")
-            elif URLDownloadPathStatus == 503:
-                self.btn_download.setText("Check internet")
+        elif URLDownloadPathStatus == 404:
+            self.btn_download.setText("ไม่พบไฟล์")
+        elif URLDownloadPathStatus == 503:
+            self.btn_download.setText("Check internet")
 
 
 

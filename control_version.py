@@ -18,7 +18,7 @@ import pytz
 
 __domain__ = 'http://61.19.253.23'
 
-__version__ = '1.11'
+__version__ = '1.12'
 
 serverVersionAutoUpdate = __domain__ + '/media/file/version_AppAutoUpdate.txt'
 serverVersionHosVersion = __domain__ + '/media/file/hospitalos_version.txt'
