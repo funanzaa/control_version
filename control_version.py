@@ -18,7 +18,7 @@ import pytz
 
 __domain__ = 'http://61.19.253.23'
 
-__version__ = '1.12'
+__version__ = '1.13'
 
 serverVersionAutoUpdate = __domain__ + '/media/file/version_AppAutoUpdate.txt'
 serverVersionHosVersion = __domain__ + '/media/file/hospitalos_version.txt'
@@ -139,6 +139,23 @@ def TestURL_HosVer():
         return server_version_hos
 
 server_version_hos = TestURL_HosVer()
+
+
+def TestURL_HosDB():
+    try:
+        response = urlopen(req_HosVersion)
+    except HTTPError as e:
+        return 'offline'
+        # print('The server couldn\'t fulfill the request. Error code: ', e.code)
+    except URLError as e:
+        return 'offline'
+    else:
+        # print ('Website is  URL_SQL working fine')
+        r_hos_version = requests.get(__domain__ + '/media/file/hospitalos_version_db.txt')
+        server_version_hos = r_hos_version.text
+        return server_version_hos
+
+server_version_hos_db = TestURL_HosDB()
 
 def TestURL_SQLHOS():
     try:
@@ -429,7 +446,7 @@ class Ui_Main(object):
                 elif int(local_version_hos) == int(server_version_hos) and self.file_app_version_test() == False:
                     self.show_popup2(server_version_hos, records[0])
                 # No update DB < server file < server = update
-                elif int(local_version_hos) < int(server_version_hos) and int(self.file_app_version_test()) < int(server_version_hos):
+                elif int(self.file_app_version_test()) < int(server_version_hos):
                     self.show_popup1(server_version_hos, records[0])
                 else:
                     if choice == "Hos":
@@ -502,7 +519,7 @@ class Ui_Main(object):
 
 
 
-    def show_popup1(self, records, local_version_hos):
+    def show_popup1(self, records, server_version_hos):
         msg = QMessageBox()
         msg.setWindowTitle("Information")
         msg.setText("ตรวจพบ Hospital-OS NHSO มีเวอร์ชั่นใหม่ " + records + " !! ")
@@ -510,7 +527,7 @@ class Ui_Main(object):
         msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         msg.setDefaultButton(QMessageBox.Ok)
         msg.setInformativeText("ต้องการอัพเดท หรือไม่")
-        msg.setDetailedText("**ปัจจุบัน Hospital-OS NHSO verion" + local_version_hos)
+        msg.setDetailedText("**ปัจจุบัน Hospital-OS NHSO verion" + server_version_hos)
 
         msg.buttonClicked.connect(self.popup_button1)
 
@@ -561,15 +578,19 @@ class Ui_Main(object):
                 text = "dbname={} user={} host={} password={} connect_timeout=1".format(dbname, user, host, password)
                 conn = psycopg2.connect(text)
                 cur = conn.cursor()
-                cur.execute(sql_hos_update_server)
-                conn.commit()
+                cur2 = conn.cursor()
+                cur2.execute("select max(replace(version_db,'.','')) from s_version")
+                records2 = cur2.fetchone()
+                if int(records2[0]) < int(server_version_hos_db):
+                    cur.execute(sql_hos_update_server)
+                    conn.commit()
             except:
                 # self.show_error_database
                 self.show_error_postgres("Postgresql unable to connect to the database.")
             else:
                 cur.close()
                 conn.close()
-                print(answer.text())
+                # print(answer.text())
                 self.bar_download() ## update patch
 
     def popup_button2(self, answer):
