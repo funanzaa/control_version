@@ -3,6 +3,7 @@ from configparser import ConfigParser
 from form_database import Ui_form_database # import form database screen
 from progressBar import Ui_formProgressBar
 from BarLoadApp import Ui_formProgressBarApp
+from cancel_claimcode import Ui_FormCancelClaimcode
 import psycopg2
 from os import path
 import os
@@ -279,6 +280,7 @@ class Ui_Main(object):
             self.AlertCheckVersionApp()
 
         self.actionSetting.triggered.connect(self.databaseForm) # call form form database
+        self.action_ClaimCode.triggered.connect(self.CancalClaimcodeForm)  # call cancal claimcode
         self.actionFlie.triggered.connect(lambda: self.closescr(Main))
         self.actionAbout.triggered.connect(lambda: self.AlertCheckVersionInApp(Main))  # call Update app
         self.actionVersion_Postgres.triggered.connect(self.checkVersionPsql)
@@ -387,6 +389,13 @@ class Ui_Main(object):
         self.ui = Ui_form_database()
         self.ui.setupUi(self.form_database)
         self.form_database.show()
+
+    def CancalClaimcodeForm(self):
+        self.cancel_claimcode = QtWidgets.QMainWindow()
+        self.ui = Ui_FormCancelClaimcode()
+        self.ui.setupUi(self.cancel_claimcode)
+        self.cancel_claimcode.show()
+
 
     def checkVersion(self, choice):
         # print(Main)
