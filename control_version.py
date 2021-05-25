@@ -16,7 +16,7 @@ import pytz
 
 # __domain__ = 'http://localhost:8000'
 
-__domain__ = 'http://61.19.253.23'
+__domain__ = 'http://bkk.hospital-os.com/'
 
 __version__ = '1.13'
 
@@ -47,8 +47,9 @@ def get_config():
 #     return response.json()
 
 def get_data(hcode):
-    url = f"{__domain__}/crm/api/ControlVersionDetail/{hcode}"
+    # url = f"{__domain__}/crm/api/ControlVersionDetail/{hcode}"
     # header = {'Authorization': f'Token {get_Token()}'}
+    url = "http://bkk.hospital-os.com//crm/api/ControlVersionDetail/" + hcode
     respones = requests.get(url)
     return respones.json()
 
@@ -79,7 +80,8 @@ def send_api():
     tz = pytz.timezone('Asia/Bangkok')
     now = (datetime.datetime.now(tz=tz))
     if get_data(hcode) == 'Not Found': ## ถ้า server ไม่มี hcode
-        url = f"{__domain__}/crm/api/ControlVersionList/"
+        # url = f"{__domain__}/crm/api/ControlVersionList/"
+        url = "http://bkk.hospital-os.com/crm/api/ControlVersionList/"
         # header = {'Authorization': f'Token {get_Token()}'}
         data = {
             "app_controlVersion": __version__,
@@ -91,7 +93,8 @@ def send_api():
         }
         requests.post(url, data=data)
     else:
-        url = f"{__domain__}/crm/api/ControlVersionDetail/{hcode}/"
+        # url = f"{__domain__}/crm/api/ControlVersionDetail/{hcode}/"
+        url = "http://bkk.hospital-os.com/crm/api/ControlVersionDetail/" + hcode
         # header = {'Authorization': f'Token {get_Token()}'}
         data = {
             "app_controlVersion": __version__,
@@ -182,7 +185,6 @@ if path.exists('./config/ext_module/stock.xml') == True:
 
 class Ui_Main(object):
     def setupUi(self, Main):
-
         Main.setObjectName("Main")
         Main.resize(506, 252)
         Main.setMinimumSize(QtCore.QSize(506, 252))
@@ -197,7 +199,7 @@ class Ui_Main(object):
         self.btnHos.setGeometry(QtCore.QRect(50, 140, 91, 31))
         font = QtGui.QFont()
         font.setFamily("TH Sarabun New")
-        font.setPointSize(10)
+        font.setPointSize(14)
         self.btnHos.setFont(font)
         self.btnHos.setObjectName("btnHos")
         self.label = QtWidgets.QLabel(self.centralwidget)
@@ -216,14 +218,14 @@ class Ui_Main(object):
         self.btnAdmin.setGeometry(QtCore.QRect(190, 140, 91, 31))
         font = QtGui.QFont()
         font.setFamily("TH Sarabun New")
-        font.setPointSize(10)
+        font.setPointSize(14)
         self.btnAdmin.setFont(font)
         self.btnAdmin.setObjectName("btnAdmin")
         self.btnReportCenter = QtWidgets.QPushButton(self.centralwidget)
         self.btnReportCenter.setGeometry(QtCore.QRect(330, 140, 111, 31))
         font = QtGui.QFont()
         font.setFamily("TH Sarabun New")
-        font.setPointSize(10)
+        font.setPointSize(14)
         self.btnReportCenter.setFont(font)
         self.btnReportCenter.setObjectName("btnReportCenter")
         self.label_3 = QtWidgets.QLabel(self.centralwidget)
@@ -242,26 +244,31 @@ class Ui_Main(object):
         self.menuHelp.setObjectName("menuHelp")
         self.menuAbout = QtWidgets.QMenu(self.menubar)
         self.menuAbout.setObjectName("menuAbout")
+        self.menuPlus = QtWidgets.QMenu(self.menubar)
+        self.menuPlus.setObjectName("menuPlus")
         Main.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(Main)
         self.statusbar.setObjectName("statusbar")
-        self.actionVersion_Postgres = QtWidgets.QAction(Main)
-        self.actionVersion_Postgres.setObjectName("actionVersion_Postgres")
         Main.setStatusBar(self.statusbar)
         self.actionSetting = QtWidgets.QAction(Main)
         self.actionSetting.setObjectName("actionSetting")
-        self.menuAbout.addAction(self.actionVersion_Postgres)
         self.actionFlie = QtWidgets.QAction(Main)
-
         self.actionFlie.setObjectName("actionFlie")
         self.actionAbout = QtWidgets.QAction(Main)
         self.actionAbout.setObjectName("actionAbout")
+        self.actionVersion_Postgres = QtWidgets.QAction(Main)
+        self.actionVersion_Postgres.setObjectName("actionVersion_Postgres")
+        self.action_ClaimCode = QtWidgets.QAction(Main)
+        self.action_ClaimCode.setObjectName("action_ClaimCode")
         self.menuFile.addAction(self.actionFlie)
         self.menuHelp.addAction(self.actionSetting)
         self.menuAbout.addAction(self.actionAbout)
+        self.menuAbout.addAction(self.actionVersion_Postgres)
+        self.menuPlus.addAction(self.action_ClaimCode)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
         self.menubar.addAction(self.menuAbout.menuAction())
+        self.menubar.addAction(self.menuPlus.menuAction())
 
         self.retranslateUi(Main)
         QtCore.QMetaObject.connectSlotsByName(Main)
@@ -279,22 +286,21 @@ class Ui_Main(object):
         self.btnAdmin.clicked.connect(lambda: self.checkVersion("Admin"))
         self.btnReportCenter.clicked.connect(lambda: self.checkVersion("Report"))
 
-
-
-
     def retranslateUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
-        Main.setWindowTitle(_translate("Main", "Autoupdate" + __version__))
+        Main.setWindowTitle(_translate("Main", "Autoupdate 1.4"))
         self.btnHos.setText(_translate("Main", "HospitalOS"))
         self.btnAdmin.setText(_translate("Main", "Admin"))
         self.btnReportCenter.setText(_translate("Main", "Report Center"))
         self.menuFile.setTitle(_translate("Main", "File"))
         self.menuHelp.setTitle(_translate("Main", "Settings"))
         self.menuAbout.setTitle(_translate("Main", "Help"))
+        self.menuPlus.setTitle(_translate("Main", "Plus+"))
         self.actionSetting.setText(_translate("Main", "Database"))
         self.actionFlie.setText(_translate("Main", "Quit"))
-        self.actionAbout.setText(_translate("Main", "Update"))
+        self.actionAbout.setText(_translate("Main", "About"))
         self.actionVersion_Postgres.setText(_translate("Main", "Version Postgres"))
+        self.action_ClaimCode.setText(_translate("Main", "ยกเลิก ClaimCode"))
 
 
 
